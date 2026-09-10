@@ -24,14 +24,16 @@ export default function MarketSidebar({
 }: MarketSidebarProps) {
 	return (
 		<aside
-			className={`relative shrink-0 border-r border-zinc-800 bg-zinc-950 transition-all duration-200 ${
-				open ? "w-72" : "w-12"
+			className={`z-40 shrink-0 border-zinc-800 bg-zinc-950 transition-all duration-200 ${
+				open
+					? "fixed inset-y-0 left-0 w-72 border-r md:relative md:w-72"
+					: "hidden md:relative md:block md:w-12 md:border-r"
 			}`}
 		>
 			<button
 				type="button"
 				onClick={onToggle}
-				className="absolute -right-3.25 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-xs text-zinc-400 hover:text-white"
+				className="absolute -right-3.25 top-5 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-xs text-zinc-400 hover:text-white"
 				aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
 			>
 				{open ? "‹" : "›"}
@@ -39,7 +41,7 @@ export default function MarketSidebar({
 
 			{open && (
 				<div className="flex h-full flex-col">
-					<div className="border-b border-zinc-800 px-5 py-5">
+					<div className="border-b border-zinc-800 px-4 py-4 sm:px-5 sm:py-5">
 						<div className="text-xs font-medium uppercase tracking-wider text-zinc-500">
 							Markets
 						</div>
@@ -49,7 +51,7 @@ export default function MarketSidebar({
 						</div>
 					</div>
 
-					<div className="flex-1 overflow-y-auto p-3">
+					<div className="flex-1 overflow-y-auto p-3 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 						{markets.map((market) => {
 							const selected = market.id === selectedMarketId;
 
@@ -58,7 +60,7 @@ export default function MarketSidebar({
 									key={market.id}
 									type="button"
 									onClick={() => onSelectMarket(market.id)}
-									className={`mb-1 w-full rounded-lg p-3 text-left transition ${
+									className={`mb-1 min-h-12 w-full rounded-lg p-3 text-left transition ${
 										selected
 											? "border border-zinc-700 bg-zinc-900"
 											: "text-zinc-400 hover:bg-zinc-900"

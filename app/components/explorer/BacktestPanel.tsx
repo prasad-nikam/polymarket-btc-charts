@@ -43,19 +43,24 @@ function range(start: number, end: number, step: number): number[] {
 		!Number.isFinite(end) ||
 		!Number.isFinite(step) ||
 		step <= 0
-	)
+	) {
 		return [];
+	}
+
 	const result: number[] = [];
 	const direction = start <= end ? 1 : -1;
 	const delta = Math.abs(step) * direction;
+
 	for (
 		let value = start;
 		direction > 0 ? value <= end + 1e-9 : value >= end - 1e-9;
 		value += delta
 	) {
 		result.push(Math.round(value * 10000) / 10000);
+
 		if (result.length > 1000) break;
 	}
+
 	return result;
 }
 
@@ -90,15 +95,20 @@ export default function BacktestPanel() {
 				Number(cutoffTo),
 				Number(cutoffStep),
 			);
+
 			const hedgeTriggers = range(
 				Number(hedgeFrom),
 				Number(hedgeTo),
 				Number(hedgeStep),
 			);
 
-			if (!cutoffs.length) throw new Error("Invalid cutoff range");
-			if (hedgeEnabled && !hedgeTriggers.length)
+			if (!cutoffs.length) {
+				throw new Error("Invalid cutoff range");
+			}
+
+			if (hedgeEnabled && !hedgeTriggers.length) {
 				throw new Error("Invalid hedge trigger range");
+			}
 
 			const response = await fetch("/api/backtest", {
 				method: "POST",
@@ -117,7 +127,11 @@ export default function BacktestPanel() {
 			});
 
 			const data = await response.json();
-			if (!response.ok) throw new Error(data.error ?? "Backtest failed");
+
+			if (!response.ok) {
+				throw new Error(data.error ?? "Backtest failed");
+			}
+
 			setResult(data);
 		} catch (error) {
 			setError(
@@ -129,35 +143,38 @@ export default function BacktestPanel() {
 	}
 
 	return (
-		<section className="my-4 mx-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex gap-12 h-full">
-			<div className="max-w-100 border-r border-neutral-800 pr-8">
-				<div className="flex items-center justify-between gap-4">
+		<section className="my-3 mx-3 flex min-h-full flex-col gap-6 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 sm:my-4 sm:mx-4 sm:p-6 lg:flex-row lg:gap-12">
+			<div className="w-full shrink-0 border-b border-neutral-800 pb-6 lg:max-w-100 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-8">
+				<div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
 					<div>
 						<div className="text-xs font-medium uppercase tracking-wider text-zinc-500">
 							Backtest
 						</div>
+
 						<h3 className="mt-1 text-xl font-semibold">
 							Strategy Lab
 						</h3>
 					</div>
+
 					<button
 						type="button"
 						onClick={run}
 						disabled={running}
-						className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+						className="w-full hidden sm:block rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
 					>
 						{running ? "Running…" : "Run backtest"}
 					</button>
 				</div>
 
-				<div className="mt-6 grid gap-6 ">
+				<div className="mt-6 grid gap-3">
 					<FieldGroup title="Markets">
-						<div className="grid grid-cols-2 gap-3">
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 							<Field
 								label="From ID"
 								value={marketFrom}
 								onChange={setMarketFrom}
 							/>
+
 							<Field
 								label="To ID"
 								value={marketTo}
@@ -168,12 +185,13 @@ export default function BacktestPanel() {
 					</FieldGroup>
 
 					<FieldGroup title="Entry ASK">
-						<div className="grid grid-cols-2 gap-3">
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 							<Field
 								label="Min"
 								value={entryMin}
 								onChange={setEntryMin}
 							/>
+
 							<Field
 								label="Max"
 								value={entryMax}
@@ -183,17 +201,19 @@ export default function BacktestPanel() {
 					</FieldGroup>
 
 					<FieldGroup title="Cutoff sweep">
-						<div className="grid grid-cols-3 gap-2">
+						<div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
 							<Field
 								label="From"
 								value={cutoffFrom}
 								onChange={setCutoffFrom}
 							/>
+
 							<Field
 								label="To"
 								value={cutoffTo}
 								onChange={setCutoffTo}
 							/>
+
 							<Field
 								label="Step"
 								value={cutoffStep}
@@ -204,18 +224,20 @@ export default function BacktestPanel() {
 				</div>
 
 				<div className="mt-6 border-t border-zinc-800 pt-6">
-					<label className="flex items-center gap-3 text-sm text-zinc-300">
+					<label className="flex  items-center gap-3 text-sm text-zinc-300">
 						<input
 							type="checkbox"
 							checked={hedgeEnabled}
 							onChange={(event) =>
 								setHedgeEnabled(event.target.checked)
 							}
+							className="h-4 w-4"
 						/>
 						Enable hedge sweep
 					</label>
+
 					{hedgeEnabled && (
-						<div className="mt-4 grid gap-6 md:grid-cols-2">
+						<div className="mt-4 grid gap-6 sm:grid-cols-2">
 							<FieldGroup title="Hedge cutoff">
 								<Field
 									label="Entry ≤ seconds"
@@ -223,6 +245,7 @@ export default function BacktestPanel() {
 									onChange={setHedgeCutoff}
 								/>
 							</FieldGroup>
+
 							<FieldGroup title="Trigger from">
 								<Field
 									label="ASK"
@@ -230,6 +253,7 @@ export default function BacktestPanel() {
 									onChange={setHedgeFrom}
 								/>
 							</FieldGroup>
+
 							<FieldGroup title="Trigger to">
 								<Field
 									label="ASK"
@@ -237,6 +261,7 @@ export default function BacktestPanel() {
 									onChange={setHedgeTo}
 								/>
 							</FieldGroup>
+
 							<FieldGroup title="Trigger step">
 								<Field
 									label="Step"
@@ -255,21 +280,32 @@ export default function BacktestPanel() {
 				)}
 
 				{result && (
-					<div className="grid gap-3 sm:grid-cols-3 mt-8">
+					<div className="mt-8 mb-4 grid gap-3 grid-cols-3">
 						<Stat
 							label="Markets considered"
 							value={result.marketsConsidered.toLocaleString()}
 						/>
+
 						<Stat
 							label="Markets with entry"
 							value={result.marketsWithEntry.toLocaleString()}
 						/>
+
 						<Stat
 							label="Cutoff results"
 							value={result.baseline.length.toLocaleString()}
 						/>
 					</div>
 				)}
+
+				<button
+					type="button"
+					onClick={run}
+					disabled={running}
+					className="w-full sm:hidden rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+				>
+					{running ? "Running…" : "Run backtest"}
+				</button>
 			</div>
 
 			{result && <Results result={result} />}
@@ -289,6 +325,7 @@ function FieldGroup({
 			<div className="mb-2 text-xs font-medium uppercase tracking-wider text-zinc-600">
 				{title}
 			</div>
+
 			{children}
 		</div>
 	);
@@ -310,11 +347,12 @@ function Field({
 			<span className="mb-1 block text-[11px] text-zinc-600">
 				{label}
 			</span>
+
 			<input
 				value={value}
 				placeholder={placeholder}
 				onChange={(event) => onChange(event.target.value)}
-				className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-zinc-600"
+				className="min-h-11 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-200 outline-none focus:border-zinc-600"
 			/>
 		</label>
 	);
@@ -365,6 +403,7 @@ function SortHeader({
 				className="flex w-full items-center gap-1 text-left text-xs text-zinc-500 transition hover:text-zinc-200"
 			>
 				<span>{label}</span>
+
 				<span className="text-[10px] text-zinc-600">
 					{active ? (direction === "desc" ? "↓" : "↑") : "↕"}
 				</span>
@@ -413,6 +452,7 @@ function Results({ result }: { result: BacktestResponse }) {
 	const sortedBaseline = [...result.baseline].sort((a, b) => {
 		const aValue = a[baselineSort.key] ?? -Infinity;
 		const bValue = b[baselineSort.key] ?? -Infinity;
+
 		const comparison = Number(aValue) - Number(bValue);
 
 		return baselineSort.direction === "asc" ? comparison : -comparison;
@@ -421,19 +461,21 @@ function Results({ result }: { result: BacktestResponse }) {
 	const sortedHedge = [...result.hedge].sort((a, b) => {
 		const aValue = a[hedgeSort.key] ?? -Infinity;
 		const bValue = b[hedgeSort.key] ?? -Infinity;
+
 		const comparison = Number(aValue) - Number(bValue);
 
 		return hedgeSort.direction === "asc" ? comparison : -comparison;
 	});
 
 	return (
-		<div className="w-full h-full space-y-8 grid grid-cols-2 gap-4">
-			<div className="">
+		<div className="grid w-full min-w-0 grid-cols-1 gap-6 space-y-8 lg:grid-cols-2 lg:gap-4">
+			<div className="min-w-0">
 				<h4 className="mb-3 text-sm font-semibold text-zinc-300">
 					Baseline
 				</h4>
-				<div className="overflow-x-auto overflow-y-auto h-180 rounded-lg border border-zinc-800 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-					<table className="w-full text-left text-sm border-b border-zinc-800">
+
+				<div className="max-w-full overflow-x-auto overflow-y-auto h-[28rem] rounded-lg border border-zinc-800 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:h-180">
+					<table className="min-w-[760px] w-full border-b border-zinc-800 text-left text-sm">
 						<thead className="bg-zinc-900">
 							<tr>
 								<SortHeader
@@ -443,24 +485,28 @@ function Results({ result }: { result: BacktestResponse }) {
 									onClick={() => toggleBaselineSort("cutoff")}
 									className="px-4 py-3"
 								/>
+
 								<SortHeader
 									label="Trades"
 									active={baselineSort.key === "trades"}
 									direction={baselineSort.direction}
 									onClick={() => toggleBaselineSort("trades")}
 								/>
+
 								<SortHeader
 									label="Wins"
 									active={baselineSort.key === "wins"}
 									direction={baselineSort.direction}
 									onClick={() => toggleBaselineSort("wins")}
 								/>
+
 								<SortHeader
 									label="Losses"
 									active={baselineSort.key === "losses"}
 									direction={baselineSort.direction}
 									onClick={() => toggleBaselineSort("losses")}
 								/>
+
 								<SortHeader
 									label="Win %"
 									active={baselineSort.key === "winRatePct"}
@@ -469,6 +515,7 @@ function Results({ result }: { result: BacktestResponse }) {
 										toggleBaselineSort("winRatePct")
 									}
 								/>
+
 								<SortHeader
 									label="Avg entry"
 									active={
@@ -479,6 +526,7 @@ function Results({ result }: { result: BacktestResponse }) {
 										toggleBaselineSort("avgEntryPrice")
 									}
 								/>
+
 								<SortHeader
 									label="Total P&L"
 									active={baselineSort.key === "totalPnl"}
@@ -487,6 +535,7 @@ function Results({ result }: { result: BacktestResponse }) {
 										toggleBaselineSort("totalPnl")
 									}
 								/>
+
 								<SortHeader
 									label="ROI"
 									active={baselineSort.key === "roiPct"}
@@ -495,6 +544,7 @@ function Results({ result }: { result: BacktestResponse }) {
 								/>
 							</tr>
 						</thead>
+
 						<tbody>
 							{sortedBaseline.map((row) => (
 								<tr
@@ -502,11 +552,13 @@ function Results({ result }: { result: BacktestResponse }) {
 									className="border-t border-zinc-800"
 								>
 									<td className="px-4 py-3">{row.cutoff}s</td>
+
 									<td>{row.trades}</td>
 									<td>{row.wins}</td>
 									<td>{row.losses}</td>
 									<td>{row.winRatePct.toFixed(2)}%</td>
 									<td>{money(row.avgEntryPrice)}</td>
+
 									<td
 										className={
 											row.totalPnl >= 0
@@ -516,6 +568,7 @@ function Results({ result }: { result: BacktestResponse }) {
 									>
 										{money(row.totalPnl)}
 									</td>
+
 									<td>
 										{row.roiPct === null
 											? "—"
@@ -529,12 +582,13 @@ function Results({ result }: { result: BacktestResponse }) {
 			</div>
 
 			{result.hedge.length > 0 && (
-				<div className="h-full">
+				<div className="min-w-0">
 					<h4 className="mb-3 text-sm font-semibold text-zinc-300">
 						Hedge sweep
 					</h4>
-					<div className="overflow-x-auto overflow-y-auto h-180 rounded-lg border border-zinc-800 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-						<table className="w-full text-left text-sm border-b border-zinc-800">
+
+					<div className="max-w-full overflow-x-auto overflow-y-auto h-[28rem] rounded-lg border border-zinc-800 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:h-180">
+						<table className="min-w-[980px] w-full border-b border-zinc-800 text-left text-sm">
 							<thead className="bg-zinc-900">
 								<tr>
 									<SortHeader
@@ -546,6 +600,7 @@ function Results({ result }: { result: BacktestResponse }) {
 										}
 										className="px-4 py-3"
 									/>
+
 									<SortHeader
 										label="Trades"
 										active={hedgeSort.key === "trades"}
@@ -554,6 +609,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											toggleHedgeSort("trades")
 										}
 									/>
+
 									<SortHeader
 										label="Profitable"
 										active={
@@ -564,6 +620,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											toggleHedgeSort("profitableTrades")
 										}
 									/>
+
 									<SortHeader
 										label="Non-profit"
 										active={
@@ -577,6 +634,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											)
 										}
 									/>
+
 									<SortHeader
 										label="Hedged"
 										active={
@@ -587,6 +645,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											toggleHedgeSort("hedgedTrades")
 										}
 									/>
+
 									<SortHeader
 										label="Hedge on winner"
 										active={
@@ -600,6 +659,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											)
 										}
 									/>
+
 									<SortHeader
 										label="Hedge on loser"
 										active={
@@ -613,6 +673,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											)
 										}
 									/>
+
 									<SortHeader
 										label="Profit %"
 										active={
@@ -624,6 +685,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											toggleHedgeSort("profitableRatePct")
 										}
 									/>
+
 									<SortHeader
 										label="Avg hedge"
 										active={
@@ -634,6 +696,7 @@ function Results({ result }: { result: BacktestResponse }) {
 											toggleHedgeSort("avgHedgePrice")
 										}
 									/>
+
 									<SortHeader
 										label="Total P&L"
 										active={hedgeSort.key === "totalPnl"}
@@ -644,6 +707,7 @@ function Results({ result }: { result: BacktestResponse }) {
 									/>
 								</tr>
 							</thead>
+
 							<tbody>
 								{sortedHedge.map((row) => (
 									<tr
@@ -653,16 +717,20 @@ function Results({ result }: { result: BacktestResponse }) {
 										<td className="px-4 py-3">
 											{(row.trigger * 100).toFixed(0)}¢
 										</td>
+
 										<td>{row.trades}</td>
 										<td>{row.profitableTrades}</td>
 										<td>{row.nonProfitableTrades}</td>
 										<td>{row.hedgedTrades}</td>
 										<td>{row.hedgeOnEventualWinner}</td>
 										<td>{row.hedgeOnEventualLoser}</td>
+
 										<td>
 											{row.profitableRatePct.toFixed(2)}%
 										</td>
+
 										<td>{money(row.avgHedgePrice)}</td>
+
 										<td
 											className={
 												row.totalPnl >= 0
@@ -687,6 +755,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 	return (
 		<div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
 			<div className="text-xs text-zinc-600">{label}</div>
+
 			<div className="mt-1 text-xl font-semibold text-zinc-200">
 				{value}
 			</div>

@@ -43,9 +43,9 @@ export default function MarketChart({ snapshots }: MarketChartProps) {
 			<LineChart
 				data={snapshots}
 				margin={{
-					top: 20,
-					right: 20,
-					bottom: 10,
+					top: 12,
+					right: 8,
+					bottom: 8,
 					left: 0,
 				}}
 			>
@@ -53,7 +53,7 @@ export default function MarketChart({ snapshots }: MarketChartProps) {
 
 				<XAxis
 					dataKey="elapsedSeconds"
-					tick={{ fill: "#71717a", fontSize: 12 }}
+					tick={{ fill: "#71717a", fontSize: 10 }}
 					tickLine={false}
 					axisLine={{ stroke: "#27272a" }}
 					tickFormatter={(value) => `${value}s`}
@@ -62,7 +62,7 @@ export default function MarketChart({ snapshots }: MarketChartProps) {
 				<YAxis
 					domain={[0, 1]}
 					ticks={[0, 0.25, 0.5, 0.75, 1]}
-					tick={{ fill: "#71717a", fontSize: 12 }}
+					tick={{ fill: "#71717a", fontSize: 10 }}
 					tickLine={false}
 					axisLine={{ stroke: "#27272a" }}
 					tickFormatter={(value) => `${Math.round(value * 100)}¢`}
