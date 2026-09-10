@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import MarketSidebar from "./MarketSidebar";
 import MarketChart, { type MarketSnapshot } from "./MarketChart";
+import BacktestPanel from "./BacktestPanel";
 
 interface Market {
 	id: number;
@@ -25,6 +26,8 @@ export default function ExplorerShell({ markets }: ExplorerShellProps) {
 	const [loading, setLoading] = useState(true);
 
 	const [error, setError] = useState<string | null>(null);
+
+	const [page, setPage] = useState<"charts" | "backtests">("backtests");
 
 	const selectedMarket = markets.find(
 		(market) => market.id === selectedMarketId,
@@ -86,60 +89,81 @@ export default function ExplorerShell({ markets }: ExplorerShellProps) {
 
 	return (
 		<div className="flex h-screen overflow-hidden bg-zinc-950 text-white">
-			<MarketSidebar
-				markets={markets}
-				selectedMarketId={selectedMarket.id}
-				onSelectMarket={setSelectedMarketId}
-				open={sidebarOpen}
-				onToggle={() => setSidebarOpen((open) => !open)}
-			/>
+			{page == "charts" && (
+				<MarketSidebar
+					markets={markets}
+					selectedMarketId={selectedMarket.id}
+					onSelectMarket={setSelectedMarketId}
+					open={sidebarOpen}
+					onToggle={() => setSidebarOpen((open) => !open)}
+				/>
+			)}
 
 			<main className="min-w-0 flex-1 overflow-auto">
 				<div className="flex min-h-full flex-col">
-					<header className="border-b border-zinc-800 px-8 py-5">
-						<div className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-							Polymarket
-						</div>
+					<header className="border-b border-zinc-800 px-8 py-5 flex justify-between">
+						<div>
+							<div className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+								Polymarket
+							</div>
 
-						<h1 className="mt-1 text-xl font-semibold">
-							Market Explorer
-						</h1>
+							<h1 className="mt-1 text-xl font-semibold">
+								Market Explorer
+							</h1>
+						</div>
+						<button
+							type="button"
+							onClick={() => {
+								setPage((prev) =>
+									prev == "backtests"
+										? "charts"
+										: "backtests",
+								);
+							}}
+							className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+						>
+							{page == "charts" ? "Run Backtest" : " See Chart"}
+						</button>
 					</header>
 
-					<section className="flex flex-1 p-8">
-						<div className="w-full">
-							<div className="text-sm text-zinc-500">
-								Market #{selectedMarket.id}
+					{page == "backtests" && <BacktestPanel />}
+
+					{page == "charts" && (
+						<section className="flex flex-1 p-8">
+							<div className="w-full">
+								<div className="text-sm text-zinc-500 mt-8">
+									Market #{selectedMarket.id}
+								</div>
+
+								<h2 className="mt-2 text-3xl font-semibold">
+									{selectedMarket.question}
+								</h2>
+
+								<p className="mt-2 text-sm text-zinc-500">
+									{selectedMarket.startTime.toISOString()} →{" "}
+									{selectedMarket.endTime.toISOString()}
+								</p>
+
+								<div className="mt-8 h-130 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+									{loading ? (
+										<div className="flex h-full items-center justify-center text-sm text-zinc-600">
+											Loading snapshots...
+										</div>
+									) : error ? (
+										<div className="flex h-full items-center justify-center text-sm text-red-400">
+											{error}
+										</div>
+									) : (
+										<MarketChart snapshots={snapshots} />
+									)}
+								</div>
+
+								<div className="mt-3 text-xs text-zinc-600">
+									{snapshots.length} snapshots
+								</div>
 							</div>
-
-							<h2 className="mt-2 text-3xl font-semibold">
-								{selectedMarket.question}
-							</h2>
-
-							<p className="mt-2 text-sm text-zinc-500">
-								{selectedMarket.startTime.toISOString()} →{" "}
-								{selectedMarket.endTime.toISOString()}
-							</p>
-
-							<div className="mt-8 h-130 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-								{loading ? (
-									<div className="flex h-full items-center justify-center text-sm text-zinc-600">
-										Loading snapshots...
-									</div>
-								) : error ? (
-									<div className="flex h-full items-center justify-center text-sm text-red-400">
-										{error}
-									</div>
-								) : (
-									<MarketChart snapshots={snapshots} />
-								)}
-							</div>
-
-							<div className="mt-3 text-xs text-zinc-600">
-								{snapshots.length} snapshots
-							</div>
-						</div>
-					</section>
+						</section>
+					)}
 				</div>
 			</main>
 		</div>

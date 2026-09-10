@@ -12,7 +12,7 @@ export async function getMarkets() {
 		})
 		.from(markets)
 		.orderBy(desc(markets.id))
-		.limit(1000);
+		.limit(100);
 }
 
 export async function getMarketSnapshots(marketId: number) {
