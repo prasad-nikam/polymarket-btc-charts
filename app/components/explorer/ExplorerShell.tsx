@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import MarketSidebar from "./MarketSidebar";
 import MarketChart, { type MarketSnapshot } from "./MarketChart";
 import BacktestPanel from "./BacktestPanel";
+import GroupAnalysisPanel from "./GroupAnalysisPanel";
 
 interface Market {
 	id: number;
@@ -156,13 +157,18 @@ export default function ExplorerShell({ markets }: ExplorerShellProps) {
 										: "backtests",
 								);
 							}}
-							className="shrink-0 rounded-lg bg-white px-3.5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
+							className="shrink-0 rounded-lg bg-blue-500/50 px-3.5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
 						>
 							{page == "charts" ? "Run Backtest" : " See Chart"}
 						</button>
 					</header>
 
-					{page == "backtests" && <BacktestPanel />}
+					{page == "backtests" && (
+						<>
+							<BacktestPanel />
+							<GroupAnalysisPanel />
+						</>
+					)}
 
 					{page == "charts" && (
 						<section className="flex flex-1 p-4 sm:p-6 lg:p-8">
