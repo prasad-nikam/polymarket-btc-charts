@@ -483,7 +483,7 @@ export async function runGroupBacktest(
 					(
 						NOT ${triggerOriginal}
 						AND bt.side = 'UP'
-						AND s.down_ask <= ${config.hedgeAsk}
+						AND s.down_ask >= ${config.hedgeAsk}
 					)
 
 					OR
@@ -491,7 +491,7 @@ export async function runGroupBacktest(
 					(
 						NOT ${triggerOriginal}
 						AND bt.side = 'DOWN'
-						AND s.up_ask <= ${config.hedgeAsk}
+						AND s.up_ask >= ${config.hedgeAsk}
 					)
 				)
 
